@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2012, Code Aurora Forum. All rights reserved.
+* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -10,7 +10,7 @@
 *      copyright notice, this list of conditions and the following
 *      disclaimer in the documentation and/or other materials provided
 *      with the distribution.
-*    * Neither the name of Code Aurora Forum, Inc. nor the names of its
+*    * Neither the name of The Linux Foundation nor the names of its
 *      contributors may be used to endorse or promote products derived
 *      from this software without specific prior written permission.
 *
@@ -93,6 +93,8 @@ public:
     /* Get downscale factor */
     int getDownscalefactor();
 
+    /* Update the src format */
+    void updateSrcformat(const uint32_t& inputsrcFormat);
 
 private:
     /* Retrieve screen info from underlying mdp */
@@ -185,6 +187,10 @@ inline int Ctrl::getPipeId() const {
 
 inline int Ctrl::getFd() const {
     return mMdp.getFd();
+}
+
+inline void Ctrl::updateSrcformat(const uint32_t& inputsrcFormat) {
+    mMdp.updateSrcformat(inputsrcFormat);
 }
 
 inline utils::ScreenInfo Ctrl::getScreenInfo() const {

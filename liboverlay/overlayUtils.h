@@ -10,7 +10,7 @@
 *      copyright notice, this list of conditions and the following
 *      disclaimer in the documentation and/or other materials provided
 *      with the distribution.
-*    * Neither the name of Code Aurora Forum, Inc. nor the names of its
+*    * Neither the name of The Linux Foundation nor the names of its
 *      contributors may be used to endorse or promote products derived
 *      from this software without specific prior written permission.
 *
@@ -43,6 +43,10 @@
 #include <sys/types.h>
 #include <utils/Log.h>
 #include "gralloc_priv.h" //for interlace
+
+#ifndef MDP_Y_CBCR_H2V2_VENUS
+#define MDP_Y_CBCR_H2V2_VENUS (MDP_IMGTYPE_LIMIT2 + 1)
+#endif
 
 /*
 *
@@ -173,6 +177,7 @@ bool usePanel3D();
 bool send3DInfoPacket (uint32_t fmt);
 bool enableBarrier (uint32_t orientation);
 uint32_t getS3DFormat(uint32_t fmt);
+bool isMdssRotator();
 
 template <int CHAN>
 bool getPositionS3D(const Whf& whf, Dim& out);
@@ -238,28 +243,6 @@ struct Whf {
     uint32_t h;
     uint32_t format;
     uint32_t size;
-};
-
-class ActionSafe {
-private:
-    ActionSafe() : mWidth(0.0f), mHeight(0.0f) { };
-    float mWidth;
-    float mHeight;
-    static ActionSafe *sActionSafe;
-public:
-    ~ActionSafe() { };
-    static ActionSafe* getInstance() {
-        if(!sActionSafe) {
-            sActionSafe = new ActionSafe();
-        }
-        return sActionSafe;
-    }
-    void setDimension(int w, int h) {
-        mWidth = (float)w;
-        mHeight = (float)h;
-    }
-    float getWidth() { return mWidth; }
-    float getHeight() { return mHeight; }
 };
 
 enum { MAX_PATH_LEN = 256 };
@@ -509,6 +492,7 @@ inline bool isYuv(uint32_t format) {
         case MDP_Y_CBCR_H2V2_TILE:
         case MDP_Y_CR_CB_H2V2:
         case MDP_Y_CR_CB_GH2V2:
+        case MDP_Y_CBCR_H2V2_VENUS:
             return true;
         default:
             return false;
@@ -556,6 +540,8 @@ inline const char* getFormatString(int format){
         "MDP_YCRCB_H1V1",
         "MDP_YCBCR_H1V1",
         "MDP_BGR_565",
+        "MDP_BGR_888",
+        "MDP_Y_CBCR_H2V2_VENUS",
         "MDP_IMGTYPE_LIMIT",
         "MDP_RGB_BORDERFILL",
         "MDP_FB_FORMAT",
@@ -601,6 +587,10 @@ inline int getMdpOrient(eTransform rotation) {
 }
 
 inline int getRotOutFmt(uint32_t format) {
+
+    if (isMdssRotator())
+        return format;
+
     switch (format) {
         case MDP_Y_CRCB_H2V2_TILE:
             return MDP_Y_CRCB_H2V2;
